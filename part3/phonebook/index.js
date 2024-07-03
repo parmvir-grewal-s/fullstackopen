@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
@@ -7,7 +8,6 @@ morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body'));
 const cors = require('cors')
 app.use(cors())
-require('dotenv').config()
 const Person = require('./models/person')
 
 app.get('/', (request, response) => {
@@ -59,20 +59,20 @@ app.post('/api/persons', (request, response) => {
         })
       }
 
-    if(persons.find(person => person.name === request.body.name)) {
+    if (Person.find({ name: request.body.name }).exec()) {
         return response.status(409).json({
             error: 'name must be unique'
         })
     }
+
     const body = request.body
-    const id = Math.floor(Math.random() * 10000)
-    const person = {
-        id: String(id),
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
-        persons = persons.concat(person)
-        response.json(person)
+    })
+    person.save().then(savedNote => {
+        response.json(savedNote)
+      })
 })
 
 const PORT = process.env.PORT || 3001
