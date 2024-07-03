@@ -7,6 +7,7 @@ morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body'));
 const cors = require('cors')
 app.use(cors())
+require('dotenv').config()
 const Person = require('./models/person')
 
 app.get('/', (request, response) => {
