@@ -16,13 +16,13 @@ app.get('/', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    Person.find({}).exec(function (err, results) {
-        var count = results.length
-      });
-    const date = new Date()
+    Person.countDocuments().then(result => {
+        console.log(result)
+        const date = new Date()
     response.send(
-        "<p>Phonebook has info for " + count + " people</p>" + "<p>" + date + "</p>"
+        "<p>Phonebook has info for " + result + " people</p>" + "<p>" + date + "</p>"
     )
+    })
 })
 
 app.get('/api/persons', (request, response) => {
