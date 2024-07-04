@@ -43,8 +43,16 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    persons = persons.filter(p => p.id !== id)
-    response.status(204).end()
+    Person.deleteOne({_id: id}).then(result => {
+        if(result) {
+            console.log('Found & removed.')
+            return response.status(204).end()
+        }
+        else{
+            console.log('No person with given ID')
+            return response.status(204).end()
+        }
+    })
 })
 
 app.post('/api/persons', (request, response) => {
@@ -59,20 +67,33 @@ app.post('/api/persons', (request, response) => {
         })
       }
 
-    if (Person.find({ name: request.body.name }).exec()) {
-        return response.status(409).json({
-            error: 'name must be unique'
-        })
-    }
+    // Person.findOne({ name: request.body.name }).exec() 
+    //     console.log(Person.find({ name: request.body.name }).exec())
+    //     return response.status(409).json({
+    //         error: 'name must be unique'
+    //     })
+    // }
 
-    const body = request.body
-    const person = new Person({
-        name: body.name,
-        number: body.number
-    })
-    person.save().then(savedNote => {
-        response.json(savedNote)
-      })
+    Person.exists({ name: request.body.name }).then(result => { 
+        if (result) {
+            return response.status(409).json({
+                error: 'name must be unique'
+            });
+        } else {
+            const body = request.body;
+            const person = new Person({
+                name: body.name,
+                number: body.number
+            });
+            person.save().then(savedPerson => {
+                return response.json(savedPerson);
+            }).catch(error => {
+                return response.status(500).json({ error: 'failed to save person' });
+            });
+        }
+    }).catch(error => {
+        return response.status(500).json({ error: error });
+    });
 })
 
 const PORT = process.env.PORT || 3001
