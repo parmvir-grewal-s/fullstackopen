@@ -55,6 +55,14 @@ app.delete('/api/persons/:id', (request, response) => {
     })
 })
 
+app.put('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    Person.findOneAndReplace({_id: id}, request.body, {returnDocument:'after'}).then(result => {
+        console.log(result)
+        return response.json(result)
+    })
+})
+
 app.post('/api/persons', (request, response) => {
     if(!request.body.name) {
         return response.status(400).json({ 
