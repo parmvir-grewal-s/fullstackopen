@@ -33,12 +33,19 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if (person) {
-        response.json(person)
-      } else {
-        response.status(404).end()
-      }
+    const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
+
+    if (!isValidObjectId(id)) {
+        return response.status(400).json({ error: 'invalid id format' });
+    }
+    Person.findById(id).then(result => {
+        if(result) {
+            response.json(result)
+        }
+        else {
+            response.status(404).end()
+        }
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -74,13 +81,6 @@ app.post('/api/persons', (request, response) => {
             error: 'number missing'
         })
       }
-
-    // Person.findOne({ name: request.body.name }).exec() 
-    //     console.log(Person.find({ name: request.body.name }).exec())
-    //     return response.status(409).json({
-    //         error: 'name must be unique'
-    //     })
-    // }
 
     Person.exists({ name: request.body.name }).then(result => { 
         if (result) {
