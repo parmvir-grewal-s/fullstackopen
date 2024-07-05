@@ -5,7 +5,7 @@ import './index.css'
 const Notification = ({message, errorBool}) => {
   if (message === null) return null
   return (
-    <div className={`notification ${errorBool ? "error" : "notification"}`}>
+    <div className={`${errorBool ? "error" : "notification"}`}>
       {message}
     </div>
   );
@@ -103,6 +103,14 @@ const App = () => {
         setNewNumber('')
         setNotification(`Added ${returnedPerson.name}`)
         setTimeout(() => {
+          setNotification(null);
+        }, 3000)
+      })
+      .catch(error => {
+        setErrorBool(true);
+        setNotification(error.response.data.error)
+        setTimeout(() => {
+          setErrorBool(false);
           setNotification(null);
         }, 3000)
       })
